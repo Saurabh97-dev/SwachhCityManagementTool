@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
@@ -17,6 +18,8 @@ namespace SwachhCityManagementTool.Classes
         public static string vendor_name = "";
         public static string access_key = "";
         public static string apiKey = "af4e61d75d2782a33eac7641e42bba6f";
+        private static readonly HttpClient httpClient = new HttpClient();
+
         #endregion
 
 
@@ -136,47 +139,86 @@ namespace SwachhCityManagementTool.Classes
 
             return "Http Code: " + result.httpCode + " Code: " + result.code + " Message: " + result.message + " | " + compcode + errors;
         }
-
-        public static string Vote_on_Complaint(string complaintId, string mobileNo)
+        public static async Task<string> VoteOnComplaintAsync(string complaintId, string mobileNo)
         {
-            //int complaintId = 3594455;
-            //string mobileNo = "9630455090";
+            var requestData = new FormUrlEncodedContent(new[]
+            {
+            new KeyValuePair<string, string>("vendor_name", vendor_name),
+            new KeyValuePair<string, string>("access_key", access_key),
+            new KeyValuePair<string, string>("mobileNumber", mobileNo),
+            new KeyValuePair<string, string>("complaintId", complaintId),
+            new KeyValuePair<string, string>("deviceToken", ""),
+            new KeyValuePair<string, string>("deviceOs", "external")
+        });
 
-            string req = @"vendor_name=" + vendor_name
-                + "&access_key=" + access_key
-                + "&mobileNumber=" + mobileNo
-                + "&complaintId=" + complaintId
-                + "&deviceToken=&deviceOs=external";
+            var response = await httpClient.PostAsync("http://api.swachh.city/sbm/v1/post-voteup", requestData);
+            var json = await response.Content.ReadAsStringAsync();
 
-
-            HttpClient myRequest = new HttpClient("http://api.swachh.city/sbm/v1/post-voteup", "POST", req);
-            string json = myRequest.GetResponse();
-
-            swch_Basic_Result result = JsonConvert.DeserializeObject<swch_Basic_Result>(json);
-            return "Http Code: " + result.httpCode + " Code: " + result.code + " Message: " + result.message;
+            var result = JsonConvert.DeserializeObject<swch_Basic_Result>(json);
+            return $"Http Code: {result.httpCode} Code: {result.code} Message: {result.message}";
         }
 
-        public static string Comment_on_Complaint(string ComplaintId, string MobileNo, string Comment)
+        public static async Task<string> CommentOnComplaintAsync(string complaintId, string mobileNo, string comment)
         {
+            var requestData = new FormUrlEncodedContent(new[]
+            {
+            new KeyValuePair<string, string>("vendor_name", vendor_name),
+            new KeyValuePair<string, string>("access_key", access_key),
+            new KeyValuePair<string, string>("mobileNumber", mobileNo),
+            new KeyValuePair<string, string>("complaintId", complaintId),
+            new KeyValuePair<string, string>("commentDescription", comment),
+            new KeyValuePair<string, string>("deviceToken", ""),
+            new KeyValuePair<string, string>("deviceOs", "external")
+        });
 
-            //int ComplaintId = 3586365;
-            //string MobileNo = "9630455090";
-            //string Comment = "this is a test Comment";
+            var response = await httpClient.PostAsync("http://api.swachh.city/sbm/v1/post-comment", requestData);
+            var json = await response.Content.ReadAsStringAsync();
 
-            string req = @"vendor_name=" + vendor_name
-                + "&access_key=" + access_key
-                + "&mobileNumber=" + MobileNo
-                + "&complaintId=" + ComplaintId
-                + "&commentDescription=" + Comment
-                + "&deviceToken=&deviceOs=external";
-
-
-            HttpClient myRequest = new HttpClient("http://api.swachh.city/sbm/v1/post-comment", "POST", req);
-            string json = myRequest.GetResponse();
-
-            swch_Basic_Result result = JsonConvert.DeserializeObject<swch_Basic_Result>(json);
-            return "Http Code: " + result.httpCode + " Code: " + result.code + " Message: " + result.message;
+            var result = JsonConvert.DeserializeObject<swch_Basic_Result>(json);
+            return $"Http Code: {result.httpCode} Code: {result.code} Message: {result.message}";
         }
+
+
+        //public static string Vote_on_Complaint(string complaintId, string mobileNo)
+        //{
+        //    //int complaintId = 3594455;
+        //    //string mobileNo = "9630455090";
+
+        //    string req = @"vendor_name=" + vendor_name
+        //        + "&access_key=" + access_key
+        //        + "&mobileNumber=" + mobileNo
+        //        + "&complaintId=" + complaintId
+        //        + "&deviceToken=&deviceOs=external";
+
+
+        //    HttpClient myRequest = new HttpClient("http://api.swachh.city/sbm/v1/post-voteup", "POST", req);
+        //    string json = myRequest.GetResponse();
+
+        //    swch_Basic_Result result = JsonConvert.DeserializeObject<swch_Basic_Result>(json);
+        //    return "Http Code: " + result.httpCode + " Code: " + result.code + " Message: " + result.message;
+        //}
+
+        //public static string Comment_on_Complaint(string ComplaintId, string MobileNo, string Comment)
+        //{
+
+        //    //int ComplaintId = 3586365;
+        //    //string MobileNo = "9630455090";
+        //    //string Comment = "this is a test Comment";
+
+        //    string req = @"vendor_name=" + vendor_name
+        //        + "&access_key=" + access_key
+        //        + "&mobileNumber=" + MobileNo
+        //        + "&complaintId=" + ComplaintId
+        //        + "&commentDescription=" + Comment
+        //        + "&deviceToken=&deviceOs=external";
+
+
+        //    HttpClient myRequest = new HttpClient("http://api.swachh.city/sbm/v1/post-comment", "POST", req);
+        //    string json = myRequest.GetResponse();
+
+        //    swch_Basic_Result result = JsonConvert.DeserializeObject<swch_Basic_Result>(json);
+        //    return "Http Code: " + result.httpCode + " Code: " + result.code + " Message: " + result.message;
+        //}
 
         public static async Task<string> User_Registration(string MobileNo)
         {
