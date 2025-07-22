@@ -141,37 +141,30 @@ namespace SwachhCityManagementTool.Classes
         }
         public static async Task<string> VoteOnComplaintAsync(string complaintId, string mobileNo)
         {
-            var requestData = new FormUrlEncodedContent(new[]
-            {
-            new KeyValuePair<string, string>("vendor_name", vendor_name),
-            new KeyValuePair<string, string>("access_key", access_key),
-            new KeyValuePair<string, string>("mobileNumber", mobileNo),
-            new KeyValuePair<string, string>("complaintId", complaintId),
-            new KeyValuePair<string, string>("deviceToken", ""),
-            new KeyValuePair<string, string>("deviceOs", "external")
-        });
+            string req = @"vendor_name=" + vendor_name
+                + "&access_key=" + access_key
+                + "&mobileNumber=" + mobileNo
+                + "&complaintId=" + complaintId
+                + "&deviceToken=&deviceOs=external";
+            var content = new StringContent(req, Encoding.UTF8, "application/json");
 
-            var response = await httpClient.PostAsync("http://api.swachh.city/sbm/v1/post-voteup", requestData);
+            var response = await httpClient.PostAsync("http://api.swachh.city/sbm/v1/post-voteup", content);
             var json = await response.Content.ReadAsStringAsync();
 
             var result = JsonConvert.DeserializeObject<swch_Basic_Result>(json);
             return $"Http Code: {result.httpCode} Code: {result.code} Message: {result.message}";
         }
 
-        public static async Task<string> CommentOnComplaintAsync(string complaintId, string mobileNo, string comment)
+        public static async Task<string> CommentOnComplaintAsync(string ComplaintId, string MobileNo, string Comment)
         {
-            var requestData = new FormUrlEncodedContent(new[]
-            {
-            new KeyValuePair<string, string>("vendor_name", vendor_name),
-            new KeyValuePair<string, string>("access_key", access_key),
-            new KeyValuePair<string, string>("mobileNumber", mobileNo),
-            new KeyValuePair<string, string>("complaintId", complaintId),
-            new KeyValuePair<string, string>("commentDescription", comment),
-            new KeyValuePair<string, string>("deviceToken", ""),
-            new KeyValuePair<string, string>("deviceOs", "external")
-        });
-
-            var response = await httpClient.PostAsync("http://api.swachh.city/sbm/v1/post-comment", requestData);
+            string req = @"vendor_name=" + vendor_name
+                + "&access_key=" + access_key
+                + "&mobileNumber=" + MobileNo
+                + "&complaintId=" + ComplaintId
+                + "&commentDescription=" + Comment
+                + "&deviceToken=&deviceOs=external";
+            var content = new StringContent(req, Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync("http://api.swachh.city/sbm/v1/post-comment", content);
             var json = await response.Content.ReadAsStringAsync();
 
             var result = JsonConvert.DeserializeObject<swch_Basic_Result>(json);
