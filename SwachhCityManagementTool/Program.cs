@@ -1,4 +1,7 @@
 ﻿
+using SwachhCityManagementTool.Classes;
+using SwachhCityManagementTool.Models.SC;
+
 namespace SwachhCityManagementTool;
 
 internal class Program
@@ -35,7 +38,14 @@ internal class Program
         switch (Console.ReadLine())
         {
             case "1":
-               // await //CF_WEB.Auto_Post_CF_WEB_Async();
+                var httpClient = new HttpClient();
+                var summaryFetcher = new ComplaintSummaryFetcher(httpClient);
+                await summaryFetcher.FetchAllSummariesAsync();
+                List<long> complaintIds = summaryFetcher.ComplaintIds;
+                var detailFetcher = new ComplaintDetailFetcher(httpClient);
+                List<ComplaintDetail> detailedComplaints = await detailFetcher.FetchDetailsAsync(complaintIds);
+                Console.WriteLine($"\n✅ Fetched {detailedComplaints.Count} detailed complaints.");
+
                 return true;
             case "2":
                 Console.WriteLine("Please enter no of pages:");
@@ -64,6 +74,37 @@ internal class Program
             default:
                 return true;
         }
+    }
+
+    public class ComplaintResponse
+    {
+        public int httpCode { get; set; }
+        public int code { get; set; }
+        public string message { get; set; }
+        public List<Complaint> complaints { get; set; }
+    }
+
+    public class Complaint
+    {
+        public long complaintId { get; set; }
+        public string complaintGenericId { get; set; }
+        public double latitude { get; set; }
+        public double longitude { get; set; }
+        public string complaintLocation { get; set; }
+        public string landmark { get; set; }
+        public string title { get; set; }
+        public long mobile_number { get; set; }
+        public string full_name { get; set; }
+        public string district { get; set; }
+        public string ulb { get; set; }
+        public int cityId { get; set; }
+        public int wardId { get; set; }
+        public int wardNo { get; set; }
+        public string wardName { get; set; }
+        public string complaint_image { get; set; }
+        public string city { get; set; }
+        public int status { get; set; }
+        public string created_at { get; set; }
     }
 
 }
