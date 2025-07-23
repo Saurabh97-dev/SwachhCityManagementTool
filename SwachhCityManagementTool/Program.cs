@@ -1,11 +1,14 @@
 ﻿
 using SwachhCityManagementTool.Classes;
+using SwachhCityManagementTool.Models;
 using SwachhCityManagementTool.Models.SC;
+using System.Net.Http;
 
 namespace SwachhCityManagementTool;
 
 internal class Program
 {
+    private static readonly HttpClient httpClient = new HttpClient();
     static async Task Main(string[] args)
     {
         // Set the console's output encoding to UTF-8
@@ -35,16 +38,10 @@ internal class Program
         Console.WriteLine("100) Exit");
         Console.Write("\r\nSelect an option: ");
 
-        switch (Console.ReadLine())
+        string selectedOption = Console.ReadLine();
+        switch (selectedOption)
         {
-            case "1":
-                var httpClient = new HttpClient();
-                var summaryFetcher = new ComplaintSummaryFetcher(httpClient);
-                await summaryFetcher.FetchAllSummariesAsync();
-                List<long> complaintIds = summaryFetcher.ComplaintIds;
-                var detailFetcher = new ComplaintDetailFetcher(httpClient);
-                List<ComplaintDetail> detailedComplaints = await detailFetcher.FetchDetailsAsync(complaintIds);
-                Console.WriteLine($"\n✅ Fetched {detailedComplaints.Count} detailed complaints.");
+            case "1":                
 
                 return true;
             case "2":
@@ -68,14 +65,70 @@ internal class Program
             case "3":
                 Console.ReadLine();
                 return true;
-        
+            //case "5":
+            //    var httpClient = new HttpClient();
+            //    var summaryFetcher = new ComplaintSummaryFetcher(httpClient);
+            //    await summaryFetcher.FetchAllSummariesAsync();
+            //    List<long> complaintIds = summaryFetcher.ComplaintIds;
+            //    var detailFetcher = new ComplaintDetailFetcher(httpClient);
+            //    List<ComplaintDetail> detailedComplaints = await detailFetcher.FetchDetailsAsync(complaintIds);
+            //    Console.WriteLine($"\n✅ Fetched {detailedComplaints.Count} detailed complaints.");
+            //    return true;
+
+            case "5":
+            case "6":
+            case "7":
+                var timeRange = selectedOption switch
+                {
+                    "5" => TimeRange.Today,
+                    "6" => TimeRange.Weekly,
+                    "7" => TimeRange.Monthly,
+                    _ => TimeRange.Today
+                };
+                await GenerateStatusReport(timeRange);
+                return true;
+
             case "100":
                 return false;
             default:
                 return true;
         }
     }
+    private static async Task GenerateStatusReport(TimeRange timeRange)
+    {
+        DateTime toDate = DateTime.Today;
+        DateTime fromDate = GetFromDateBasedOnTimeRange(toDate, timeRange);
 
+        var summaryFetcher = new ComplaintSummaryFetcher(httpClient, fromDate, toDate);
+        await summaryFetcher.FetchAllSummariesAsync();
+        List<long> complaintIds = summaryFetcher.ComplaintIds;
+        var detailFetcher = new ComplaintDetailFetcher(httpClient);
+        List<ComplaintDetail> detailedComplaints = await detailFetcher.FetchDetailsAsync(complaintIds);
+
+        List<EmpWiseReportModel> ReportData = ReportHelper.Convert_To_EmpWiseReportModel(detailedComplaints);
+        GenerateReport.GenarateEmployeeWiseREportExcel(ReportData);
+
+        Console.WriteLine($"\n✅ Fetched {detailedComplaints.Count} detailed complaints for {timeRange} report ({fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}).");
+    }
+
+
+    private static DateTime GetFromDateBasedOnTimeRange(DateTime toDate, TimeRange timeRange)
+    {
+        return timeRange switch
+        {
+            TimeRange.Today => toDate,
+            TimeRange.Weekly => toDate.AddDays(-6), 
+            TimeRange.Monthly => toDate.AddMonths(-1).AddDays(1),
+            _ => toDate
+        };
+    }
+
+    public enum TimeRange
+    {
+        Today,
+        Weekly,
+        Monthly
+    }
     public class ComplaintResponse
     {
         public int httpCode { get; set; }

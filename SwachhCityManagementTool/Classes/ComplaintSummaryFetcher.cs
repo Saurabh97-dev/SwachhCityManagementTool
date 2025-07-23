@@ -12,18 +12,22 @@ namespace SwachhCityManagementTool.Classes
     {
         private readonly HttpClient _client;
         private readonly JsonSerializerOptions _options;
+        private readonly DateTime _fromDate;
+        private readonly DateTime _toDate;
 
         public List<long> ComplaintIds { get; private set; } = new List<long>();
 
-        public ComplaintSummaryFetcher(HttpClient client)
+        public ComplaintSummaryFetcher(HttpClient client, DateTime fromDate, DateTime toDate)
         {
             _client = client;
+            _fromDate = fromDate;
+            _toDate = toDate;
             _options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         }
 
         public async Task FetchAllSummariesAsync()
         {
-            var baseUrl = "https://api.swachh.city/sbm/v1/getComplaints?vendor_name=gwalior&access_key=7tcozS5ax&from_date=2025-07-18&to_date=2025-07-22";
+            var baseUrl = $"https://api.swachh.city/sbm/v1/getComplaints?vendor_name=gwalior&access_key=7tcozS5ax&from_date={_fromDate:yyyy-MM-dd}&to_date={_toDate:yyyy-MM-dd}";
             int page = 1;
 
             while (true)
