@@ -62,7 +62,6 @@ namespace SwachhCityManagementTool.Classes
                 ExcelHelper.ExportToExcel("Employee Wise Report", data, _columnsConfig, stream);
                 File.WriteAllBytes(fullPath, stream.ToArray());
             }
-
             Console.WriteLine($"Excel report saved to: {fullPath}");
         }
 

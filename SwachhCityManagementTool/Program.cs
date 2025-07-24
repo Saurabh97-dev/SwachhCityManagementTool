@@ -57,7 +57,6 @@ internal class Program
                 string Skip = Console.ReadLine();
                 int _skip = Convert.ToInt32(Skip);
 
-               // await CF_WEB.Auto_Post_CF_Web_Batch_Async(_pages, _post, _skip);
                 Console.ReadLine();
                 return true;
    
@@ -65,15 +64,6 @@ internal class Program
             case "3":
                 Console.ReadLine();
                 return true;
-            //case "5":
-            //    var httpClient = new HttpClient();
-            //    var summaryFetcher = new ComplaintSummaryFetcher(httpClient);
-            //    await summaryFetcher.FetchAllSummariesAsync();
-            //    List<long> complaintIds = summaryFetcher.ComplaintIds;
-            //    var detailFetcher = new ComplaintDetailFetcher(httpClient);
-            //    List<ComplaintDetail> detailedComplaints = await detailFetcher.FetchDetailsAsync(complaintIds);
-            //    Console.WriteLine($"\n✅ Fetched {detailedComplaints.Count} detailed complaints.");
-            //    return true;
 
             case "5":
             case "6":
